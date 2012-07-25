@@ -1,15 +1,25 @@
-body{
-	min-height: 100%;
+
+header{
+	background: #9dd745 url(/assets/images/stripes.png) fixed;
+	img{
+		margin: 5px 0px 5px 40px;
+		width: 150px;
+		height: 50px;
+	}
 }
 .slide{
-	background-color: #dfd2ad;
+	margin: 10px 10px 0 10px;
+	background: url(/assets/images/seamlesspaper.jpg) fixed;
 	border: 1px solid black;
 	.header{
 		width: 100%;
+		border-bottom: 2px dotted black;
 		p.title{
-			font-size: 24px;
+			font-size: 48px;
 			text-align: center;
 			width: 100%;
+			margin-bottom: 10px !important;
+			margin-top: 10px !important;
 		}
 	}
 	.body{
@@ -28,6 +38,21 @@ body{
 		}
 		.code-bottom{
 			clear:both;
+			margin: 0 5px 0 5px;
+		}
+	}
+}
+#async-vs-blocking{
+	.body{
+		overflow: auto;
+		.img-group{
+			margin: 5px auto;
+			width: 725px;
+			overflow: auto;
+			img{
+				margin: 5px;
+				float: left;
+			}
 		}
 	}
 }

@@ -2,8 +2,16 @@
     <section id="title" class="slide">
     	<h1>Going Asynchronous with Play!</h1>
     </section>
-     <section class="slide">
-		<h1>Async vs imperative</h1>
+     <section id="async-vs-blocking"class="slide">
+		<div class="header">
+            <p class="title">Async vs Blocking</p>
+        </div>
+        <div class="body">
+            <div class="img-group">
+                 <img class="blocking" src="@routes.Assets.at("images/blocking.jpg")">
+                 <img class="blocking" src="@routes.Assets.at("images/async.jpg")">
+            </div>
+        </div>
     </section>
     <section id="functional-vs-oo" class="slide">
     	<div class="header">
@@ -79,8 +87,17 @@ object FactorUtil{
             </div>
 		</div>
     </section>
-    <section class="slide">
-		<h1>Scala vs Java</h1>
+    <section id="scala" class="slide">
+		<div class="header">
+            <p class="title">Scala</p>
+        </div>
+        <div class="body">
+            <ul>
+                <li>Smart Type Safe</li>
+                <li>Seamless Integration With Java</li>
+                <li>Object Orriented</li>
+                <li>Functional</li>
+        </body>
     </section>
     <section class="slide">
 		<h1>What is Play</h1>
@@ -115,5 +132,10 @@ object FactorUtil{
     <script>
     	$.deck(".slide");
         SyntaxHighlighter.all();
+        var windowHeight = $(window).height();
+        var headerHeight = $("header").height() + 30;
+        $(".slide").each(function(index, el){
+            $(el).height (windowHeight - headerHeight);
+        });
     </script>
 }
