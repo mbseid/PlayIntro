@@ -1,0 +1,119 @@
+@main("Play! Framework Intro") {
+    <section id="title" class="slide">
+    	<h1>Going Asynchronous with Play!</h1>
+    </section>
+     <section class="slide">
+		<h1>Async vs imperative</h1>
+    </section>
+    <section id="functional-vs-oo" class="slide">
+    	<div class="header">
+			<p class="title">Functional vs Impertative</p>
+    	</div>
+		<div class="body">
+			<div class="code">
+				<pre class="brush: java">
+@{"""
+//Factor Utility: Imperative -- Java
+
+public class FactorUtil{
+	private List<int> factors;
+    private int number;
+
+    public FactorUtil(int number){
+        this.number = number;
+        factors = new ArrayList<int>();
+
+        //Lets add our two known factors.
+        //  Gives a little less to compute later
+        factors.add(1);
+        factors.add(number);
+    }
+    public void compute(){
+        //No reason to loop higher than root
+        for(int i = 0; i < sqrt(number); i++){
+            if((number % i) == 0){
+                factors.add(i);
+            }
+        }
+    }
+    public List<int> getFactors(){
+        return factors;
+    }
+}"""}
+				</pre>
+			</div>
+			<div class="code">
+				<pre class="brush: java">
+@{"""
+//Factor Utility: More Functional -- Java
+
+public class FactorUtil{
+       
+    public static List<int> factor(int number){
+        List<int> factors = new ArrayList<int>();
+        for(int i = 0; i < sqrt(number); i++){
+            if((number % i) == 0){
+                factors.add(i);
+            }
+        }
+        return factors;
+    }
+}"""}
+				</pre>
+			</div>
+
+            <div class="code-bottom">
+                <pre class="brush: scala">
+@{"""
+//Factor Utility: Fully Functional -- Scala
+object FactorUtil{
+
+    def factor(number:Int):List[Int] = {
+        (1 to number).toList.foldLeft(List[Int]()) { (r , c) => 
+            if(c % number == 0 ) c :: r else r
+        }
+    }
+}
+"""}
+                </pre>
+            </div>
+		</div>
+    </section>
+    <section class="slide">
+		<h1>Scala vs Java</h1>
+    </section>
+    <section class="slide">
+		<h1>What is Play</h1>
+    </section>
+    <section class="slide">
+		<h1>Play! highlights</h1>
+    </section>
+    <section class="slide">
+		<h1>Demo</h1>
+    </section>
+    <section class="slide">
+		<h1>Routes - controllers</h1>
+    </section>
+    <section class="slide">
+		<h1>views</h1>
+    </section>
+    <section class="slide">
+		<h1>Actors</h1>
+    </section>
+    <section class="slide">
+		<h1>Architecture</h1>
+    </section>
+    <section class="slide">
+		<h1>Benifits</h1>
+    </section>
+    <section class="slide">
+		<h1>Testing</h1>
+    </section>
+    <section class="slide">
+		<h1>Scaling</h1>
+    </section>
+    <script>
+    	$.deck(".slide");
+        SyntaxHighlighter.all();
+    </script>
+}
