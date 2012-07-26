@@ -20,12 +20,16 @@
         <script src="@routes.Assets.at("javascripts/shCore.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/shBrushJava.js")" type="text/javascript"></script>
         <script src="@routes.Assets.at("javascripts/shBrushScala.js")" type="text/javascript"></script>
-
+        <script src="@routes.Assets.at("javascripts/shBrushPlain.js")" type="text/javascript"></script>
     </head>
     <body>
 
     <header>
     	<img src="@routes.Assets.at("images/logo.png")" >
+
+        <select id="quick-slide-select">
+            <option default>Quick Navigation</option>
+        </select>
     </header>
 
     <div class="content">

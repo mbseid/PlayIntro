@@ -94,40 +94,275 @@ object FactorUtil{
         <div class="body">
             <ul>
                 <li>Smart Type Safe</li>
-                <li>Seamless Integration With Java</li>
+                    <div class="scala-code">
+                    <pre class="brush:scala">
+@{"""
+scala> var foo = "This is a string"
+foo: java.lang.String = This is a string
+
+scala> foo = 2
+<console>:8: error: type mismatch;
+ found   : Int(2)
+ required: java.lang.String
+       foo = 2
+             ^
+"""}
+                    </pre>
+                    </div>
                 <li>Object Orriented</li>
+                    <p>Every value is an object</p>
                 <li>Functional</li>
+                    <p>Every function is a value</p>
+                    <p>Immutable and Mutable Objects</p>
+                    <div class="scala-code">
+                    <pre class="brush:scala">
+@{"""
+scala> val bar = "Testing"
+bar: java.lang.String = Testing
+
+scala> bar = "New Value"
+<console>:8: error: reassignment to val
+       bar = "New Value"
+           ^
+"""}
+                    </pre>
+                    </div>
+                <li>Seamless Integration With Java</li>
         </body>
     </section>
-    <section class="slide">
-		<h1>What is Play</h1>
+    <section id="play-framework" class="slide">
+		<h1>Enter Play Framework</h1>
     </section>
-    <section class="slide">
-		<h1>Play! highlights</h1>
+    <section id="play-highlights" class="slide">
+		<div class="header">
+            <p class="title">Play! Framework Highlights</p>
+        </div>
+        <div class="body">
+            <img src="@routes.Assets.at("images/play-highlights.png")">
+            <a href="http://www.playframework.org/">borrowed from Play! Framework</a>
+        </div>
     </section>
-    <section class="slide">
+    <section id="demo"class="slide">
 		<h1>Demo</h1>
     </section>
-    <section class="slide">
-		<h1>Routes - controllers</h1>
+    <section id="routes"class="slide">
+		<div class="header">
+            <p class="title">Routes and Controllers</p>
+        </div>
+        <div class="body">
+            <div class="code-group">
+                <p>routes</p>
+                <pre class="brush: plain">
+@{"""
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Home page
+GET     /                           controllers.PostController.list
+GET     /post/:id                   controllers.PostController.readPost(id:Long)
+POST    /post                       controllers.PostController.post
+DELETE  /post/:id                   controllers.PostController.delete(id:Long)
+...
+GET     /admin/dashboard/post/create        controllers.PostController.create
+GET     /admin/dashboard/post/:id/edit      controllers.PostController.edit(id:Long)
+GET     /admin/dashboard/post/list          controllers.PostController.listAdmin
+GET     /admin/dashboard/user/approve       controllers.UserController.toApprove
+
+# Map static resources from the /public folder to the /assets URL path
+GET     /assets/javascripts/routes  controllers.Application.javascriptRoutes
+GET     /assets/*file               controllers.Assets.at(path="/public", file)
+"""}
+                </pre>
+            </div>
+        </div>
     </section>
-    <section class="slide">
-		<h1>views</h1>
+        <section id="controllers"class="slide">
+        <div class="body">
+            <div class="code-group">
+                <p>Controllers</p>
+                <pre class="brush: scala">
+@{"""
+object PostController extends Controller with Secured with Implicits with EBeanConversions {
+  
+  val postSupervisor = Akka.system.actorOf(Props[PostSupervisor])
+    ...
+   // Implicit argument required by `actor ?`
+  implicit val timeout : Timeout = Timeout(5 seconds)
+
+  def list = Cached("homePage"){
+    Action{ implicit request =>
+      Async{
+        ( postSupervisor ? All()).asPromise.map  {
+
+            case Success( obj ) =>
+              Ok(views.html.post.list(obj.asInstanceOf[List[Post]]))
+
+            // Our delegate returned a known error
+            case ActorError(reason) => BadRequest(reason)
+
+            // Our delegate returned unknown data
+            case _ => InternalServerError
+        }
+      }
+    }
+  }
+  def readPost(id:Long) = Action { implicit request =>
+    Async{
+      (postSupervisor ? Get(id)).asPromise.map  {
+        case Success(obj) =>
+          val post = obj.asInstanceOf[Post]
+          Ok(views.html.post.post(post))
+
+        ...
+      }
+    }
+
+  }
+  def listAdmin = IsAuthenticatedWithUser { user => implicit request =>
+  Async{
+        (postSupervisor ? All()).asPromise.map  {
+          case Success(obj) =>
+            val post = obj.asInstanceOf[List[Post]]
+            Ok(views.html.admin.postList(post))
+
+            ...
+        }
+      }
+
+  }
+}
+"""}
+                </pre>
+            </div>
+        </div>
     </section>
-    <section class="slide">
-		<h1>Actors</h1>
+    <section id="views" class="slide">
+        <h1>We are going to skip views
+
+        They are pretty easy to learn, we are all smart people
+        </h1>
     </section>
-    <section class="slide">
-		<h1>Architecture</h1>
+    <section id="actors" class="slide">
+        <div class="header">
+            <p class="title">What are Actors?</p>
+        </div>
+        <div class="body">
+            <p>Built on the <a href="http://akka.io">Akka platform</a></p>
+            <ul>
+                <li>Simple and high-level abstractions for concurrency and parallelism.</li>
+                <li>Asynchronous, non-blocking and highly performant event-driven programming model.</li>
+                <li>Very lightweight event-driven processes (approximately 2.7 million actors per GB RAM).</li>
+            </ul>
+            <p>Fault Tolerance</p>
+            <ul>
+                <li>“let-it-crash” semantics</li>
+                <li>Supervisor hierarchies</li>
+            </ul>
+            <p class="message">all interactions of actors use purely message passing and everything is asynchronous.</p>
+        </div>
     </section>
-    <section class="slide">
-		<h1>Benifits</h1>
+    <section id="actors-example" class="slide">
+		<div class="header">
+            <p class="title">Actors</p>
+        </div>
+        <div class="body">
+            <div class="code-group">
+                <pre class="brush: scala">
+@{"""
+abstract class CrudActor[T <: AbstractModel] extends AbstractActor with EBeanConversions{
+
+  val modelDAO:AbstractDAO[T]
+  def receive = handleMsg orElse handleCrud
+
+  //Stub for all subclasses to define. needed in Recieve
+  def handleMsg: Receive
+
+  def handleCrud: Receive = {
+    case All() =>
+      val list:List[T] = modelDAO.all()
+      sender ! list
+    case Save( obj ) =>
+      val saved = modelDAO.save( obj.asInstanceOf[T] )
+      sender ! obj
+    case Get( id ) =>
+      val item = modelDAO.get( id )
+      sender ! item
+    // Unknown Message Handling
+    case Delete ( id ) =>
+      modelDAO.delete( id )
+      sender ! id
+    case _ =>
+      sender ! ActorError("Unknown Request")
+
+  }
+}
+
+class PostActor extends CrudActor[Post] {
+  override val modelDAO = new PostDAO()
+  def handleMsg = {
+    case Test() =>
+        sender ! "Works"
+
+    case DisassociateTag( post, tag) =>
+        val updatedPost = modelDAO.removeTag( post, tag)
+        sender ! updatedPost
+  }
+}
+"""}
+                </pre>
+            </div>
+        </div>
     </section>
-    <section class="slide">
-		<h1>Testing</h1>
+    <section id="architecture" class="slide">
+        <div class="header">
+            <p class="title">Architecture</p>
+        </div>
+        <div class="body">
+            <img src="@routes.Assets.at("images/Arch.jpg")">
+        </div>
     </section>
-    <section class="slide">
-		<h1>Scaling</h1>
+    <section id="explore" class="slide">
+        <h1>Lets explore the our Demo</h1>
+        <a href="#"><img src="@routes.Assets.at("images/baracktocat.jpeg")" height="50%" width="50%"></a>
+    </section>
+    <section id="testing" class="slide">
+		<div class="header">
+            <p class="title">Testing</p>
+        </div>
+        <div class="body">
+            <p>Lets do some load testing using JMeter</p>
+        </div>
+    </section>
+    <section id="scaling" class="slide">
+		<div class="header">
+            <p class="title">Scaling</p>
+        </div>
+        <div class="body">
+           
+                <img src="@routes.Assets.at("images/horizontal.jpg")" >
+        </div>
+    </section>
+    <section id="scaling-future" class="slide">
+        <div class="header">
+            <p class="title">Scaling - Future</p>
+        </div>
+        <div class="body">
+                <img src="@routes.Assets.at("images/akka-cluster.jpg")" >
+        </div>
+    </section>
+    <section id="questions" class="slide">
+        <h1>Questions???<h1>
+    </section>
+     <section id="contact" class="slide">
+        <div class="contact-group">
+        <p>Find me at any of the following</p>
+        <ul>
+            <li><a href="mailto:mbseid@@gmail.com">mbseid@@gmail.com</a></li>
+            <li><a href="https://twitter.com/mbseid/">@@mbseid</a></li>
+            <li><a href="https://github.com/mbseid">mbseid on github</a></li>
+        </ul>
+        </div>
     </section>
     <script>
     	$.deck(".slide");
@@ -137,5 +372,15 @@ object FactorUtil{
         $(".slide").each(function(index, el){
             $(el).height (windowHeight - headerHeight);
         });
+        $(".slide").each(function(index, el){
+            var option = $("<option></option>")
+            option.html($(el).attr("id"));
+            $("#quick-slide-select").append(option);
+        });
+         $("#quick-slide-select").change(function(event){
+            var ht = event.currentTarget.value;
+            event.currentTarget.selectedIndex = 0;
+            window.location.hash = "#" + ht;
+         });
     </script>
 }
