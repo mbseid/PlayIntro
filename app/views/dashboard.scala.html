@@ -1,0 +1,35 @@
+@(accounts:Seq[Account])
+
+@main("Dashbaord"){
+	<div id="right-column">
+		<div id="account-list">
+			<div class="list-heading">
+				<p class="list-col number">Account Number</p>
+				<p class="list-col balance">Balance</p>
+				<p class="list-col email">Email</p>
+			</div>
+			@accounts.map { account =>
+				<div class="list-row account">
+					<p class="list-col number">@account.id</p>
+					<p class="list-col balance">@account.balance</p>
+					<p class="list-col email">@account.email</p>
+				</div>
+			}
+		</div>
+		<div id="action-group">
+			<btn id="postThread" class="btn btn-primary">POST</btn>
+			<btn id="postNonThread" class="btn btn-primary">POST Non-Threaded</btn>
+		</div>
+	</div>
+
+	<div id="transaction-list">
+		<p class="heading">Transactions:</p>
+		<div id="transactions"></div>
+	</div>
+	<div id="transaction-stats">
+		<p class="heading">Transaction Stats:</p>
+
+	</div>
+
+	
+}

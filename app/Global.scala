@@ -24,8 +24,8 @@ object InitialData {
     if(Account.findAll.isEmpty) {
       
       Seq(
-        Account("ABC123", 140.00, "mbseid@gmail.com"),
-        Account("TES71G", 2000.00, "test@test.com")
+        Account("ABC123", new java.math.BigDecimal(140.00), "mbseid@gmail.com"),
+        Account("TES71G", new java.math.BigDecimal(2000.00), "test@test.com")
       ).foreach(Account.create)
 
     }

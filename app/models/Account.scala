@@ -5,17 +5,18 @@ import play.api.Play.current
 
 import anorm._
 import anorm.SqlParser._
+import java.math.{BigDecimal}
 
-case class Account(id:String, balance:Double, email:String){
+case class Account(id:String, balance:BigDecimal, email:String){
 	def fundsAvailable(amount:Double):Boolean = {
-		if(balance > amount) true else false
+		if(balance.doubleValue() > amount) true else false
 	}
 }
 
 object Account {
 	val simple = {
 	    get[String]("id") ~
-	    get[Double]("balance") ~
+	    get[BigDecimal]("balance") ~
 	    get[String]("email") map {
 	      case id~balance~email => Account(id, balance, email)
 	    }

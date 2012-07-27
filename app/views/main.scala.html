@@ -1,12 +1,14 @@
-@(title: String)(content: Html)
+@(title: String, showSlideSelect:Boolean = true)(content: Html)
 
 <!DOCTYPE html>
 
 <html>
     <head>
         <title>@title</title>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/preso.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/dashboard.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/deck.core.css")">
         <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/deck.hash.css")">
         <link rel="stylesheet" id="transition-theme-link" href="@routes.Assets.at("stylesheets/deck.transition.css")">
@@ -27,6 +29,10 @@
     <header>
     	<img src="@routes.Assets.at("images/logo.png")" >
 
+        <div id="nav-group">
+            <a class="btn" href="/">Slides</a>
+            <a class="btn" href="/dashboard">Dashboard</a>
+        </div>
         <select id="quick-slide-select">
             <option default>Quick Navigation</option>
         </select>

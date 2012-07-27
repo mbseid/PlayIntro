@@ -4,14 +4,14 @@
 
 create table account (
   id                	varchar(255) not null primary key,
-  balance               number not null,
+  balance               decimal(10,2) not null,
   email                 varchar(255) not null
 );
 
 create table transaction (
   id                    bigint not null primary key,
   account               varchar(255) not null,
-  amount                number not null,
+  amount                decimal(10,2) not null,
   date                  timestamp,
   foreign key(account)  references account(id) on delete cascade
 );
