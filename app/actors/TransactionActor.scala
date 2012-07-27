@@ -9,40 +9,29 @@ import akka.pattern.ask
 import akka.actor._
 import play.api.libs.concurrent._
 import play.api.Play.current
-
+import java.math.BigDecimal
 import models._
 
-case class Post(account:String, amount:Double)
+case class Post(accountNumber:String, amountNumber:BigDecimal)
 case class PostSuccess()
 case class PostError( cause: String )
 
 class TransactionActor extends Actor with Timeouts{
 
+  val emailActor = Akka.system.actorOf(Props[EmailActor])
+  
   def receive = {
-    case PostSuccess() =>{
-      
+    case Post(accountNumber, amountNumber) => {
+      val account = Account.find(accountNumber).get
+      val success = account.fundsAvailable(amountNumber);
+    	if(success){
+        sender ! PostSuccess()
+      }else{
+        sender ! PostError("insufficient funds")
+      }
+      if(success) Account.updateBalance(account,amountNumber) 
+      models.Transaction.create(account, amountNumber, success)
+   	  (emailActor ! Send(account.email, "Transaction", views.html.email()))
     }
   }
-  //   val emailActor = Akka.system.actorOf(Props[EmailActor])
-  
-  // def receive = {
-  //   case Post(acount, amount) => {
-  //   	val postSuccess = Account.postTransaction("123ac", 13.75)
-  //   	postSuccess match {
-  //   		case Some(bool) => {
-  //       		if(bool){
-  //          			sender ! PostSuccess()
-		//         }else{
-		//            sender ! PostError("Failure - Lack of funds")
-		//         }
-       
-		//       }
-	 //      case None => {
-	 //        sender ! PostError("Failure - No account present")
-	 //      }
-  //   	}
-  //  		emailActor ! Send("test@dev.com", "Transaction", views.html.email.transaction())
-  //     Account.saveChange("123ac", 13.75);
-  //   }
-  // }
 }

@@ -5,6 +5,7 @@
 # Home page
 GET     /                           controllers.Application.index
 
+POST 	/post/thread 				controllers.Transaction.post
 POST	/post/nonthread				controllers.Transaction.postNonThread
 GET		/dashboard					controllers.Application.dashboard
 GET		/dashboard/stream			controllers.Transaction.dashboardStream

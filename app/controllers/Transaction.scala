@@ -16,6 +16,7 @@ import scala.concurrent.stm._
 import java.util.concurrent.TimeUnit
 import java.math.BigDecimal
 import scala.util.control.Exception._
+import utils._
 
 import actors._
 import models._
@@ -34,42 +35,49 @@ import play.api.libs.json._
 
 object Transaction extends Controller with Timeouts{
 
-	//val transactionActor = Akka.system.actorOf(Props[TransactionActor])
+	  val transactionActor = Akka.system.actorOf(Props[TransactionActor])
   	val postForm = Form(
       tuple(
           "accountNumber" -> nonEmptyText,
           "amount" -> nonEmptyText
           )
       )
-      
-  	// def post = Action { implicit request =>
-   //  	Async{
-   //    		(transactionActor ? Post("123ac", 13.75)).asPromise.map {
-   //      		case PostSuccess() => Ok("Success")
-   //      		case PostError( cause ) => BadRequest("Failure - " + cause)
-   //    		}
-   //  	}
-  	// }
   
   	def postNonThread = Action { implicit request =>
   		postForm.bindFromRequest.fold (
   			errors => BadRequest,
   			{
   				case (accountNumber, amount) =>
-          val amountNumber = new BigDecimal(amount)
-					var account = Account.find(accountNumber).get
-					if(account.fundsAvailable(amountNumber)){
-            Account.updateBalance(account,amountNumber)
-
-						Ok("{success:true}").as("application/json")
-					}else{
-						Ok("{success: false, cause: 'insufficient funds'}").as("application/json")
-					}
+            val amountNumber = new BigDecimal(amount)
+    				var account = Account.find(accountNumber).get
+    				if(account.fundsAvailable(amountNumber)){
+              Account.updateBalance(account,amountNumber)
+              MailUtility.sendEmail(account.email, "New Transaction", views.html.email())
+              models.Transaction.create(account, amountNumber, true)
+    					Ok("{success:true}").as("application/json")
+    				}else{
+              models.Transaction.create(account, amountNumber, false)
+    					Ok("{success: false, cause: 'insufficient funds'}").as("application/json")
+    				}
   			}
 
   		)
   	}
-
+    def post = Action { implicit request =>
+      postForm.bindFromRequest.fold (
+          errors => BadRequest,
+          {
+            case (accountNumber, amount) =>
+              val amountNumber = new BigDecimal(amount)
+              Async{
+                (transactionActor ? Post(accountNumber, amountNumber)).asPromise.map {
+                    case PostSuccess() => Ok("{success:true}").as("application/json")
+                    case PostError( cause ) => Ok("{success: false, cause: '"+cause+"'}").as("application/json")
+                }
+              }
+          }
+        )
+    }
     def dashboardStream = Action{
       Ok.stream( Streams.getHeap &> Comet(callback = "window.dashboard.message"))
     }

@@ -13,6 +13,7 @@ create table transaction (
   account               varchar(255) not null,
   amount                decimal(10,2) not null,
   date                  timestamp,
+  success				boolean,
   foreign key(account)  references account(id) on delete cascade
 );
 
