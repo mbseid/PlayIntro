@@ -125,7 +125,7 @@
 			<key>ColumnSpacing</key>
 			<real>36</real>
 			<key>DisplayScale</key>
-			<string>1 0/72 in = 1 0/72 in</string>
+			<string>1 0/72 in = 1.0000 in</string>
 			<key>GraphicsList</key>
 			<array>
 				<dict>
@@ -2564,7 +2564,7 @@ Server}</string>
 			</dict>
 		</array>
 		<key>Frame</key>
-		<string>{{507, 136}, {710, 872}}</string>
+		<string>{{508, 130}, {710, 872}}</string>
 		<key>ListView</key>
 		<true/>
 		<key>OutlineWidth</key>

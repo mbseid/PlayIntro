@@ -9,7 +9,7 @@
 				<p class="list-col email">Email</p>
 			</div>
 			@accounts.map { account =>
-				<div class="list-row account">
+				<div class="list-row account" data-accountId="@account.id">
 					<p class="list-col number">@account.id</p>
 					<p class="list-col balance">@account.balance</p>
 					<p class="list-col email">@account.email</p>
@@ -28,8 +28,8 @@
 	</div>
 	<div id="transaction-stats">
 		<p class="heading">Transaction Stats:</p>
-
+		<p class="section">Total Transactions: <span id="totalTransactions">0</span></p>
 	</div>
-
-	
+	<script src="@routes.Assets.at("javascripts/dashboard.js")"></script>
+	@*<iframe id="comet" src="@routes.Transaction.dashboardStream.unique"></iframe>*@
 }

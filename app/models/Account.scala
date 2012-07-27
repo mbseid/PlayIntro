@@ -7,9 +7,10 @@ import anorm._
 import anorm.SqlParser._
 import java.math.{BigDecimal}
 
+
 case class Account(id:String, balance:BigDecimal, email:String){
-	def fundsAvailable(amount:Double):Boolean = {
-		if(balance.doubleValue() > amount) true else false
+	def fundsAvailable(amount:BigDecimal):Boolean = {
+		if(balance.doubleValue() > amount.doubleValue()) true else false
 	}
 }
 
@@ -41,6 +42,18 @@ object Account {
 
   		account
   	}
+
+    def updateBalance(account:Account, amount:BigDecimal) = {
+      val newBalance = account.balance.doubleValue() - amount.doubleValue()
+      DB.withTransaction { implicit conn =>
+          SQL("""
+              UPDATE account SET balance = { balance } WHERE id = {id}
+            """).on(
+              'balance -> newBalance,
+              'id -> account.id
+            ).executeUpdate()
+      }
+    }
 
   	def find(id:String): Option[Account] = {
   		DB.withTransaction { implicit conn =>
