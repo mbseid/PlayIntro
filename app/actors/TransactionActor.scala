@@ -14,6 +14,7 @@ import models._
 
 case class Post(accountNumber:String, amountNumber:BigDecimal)
 case class PostSuccess()
+case class PostSuccessFinish(acount:Account, amountNumber:BigDecimal)
 case class PostError( cause: String )
 
 class TransactionActor extends Actor with Timeouts{
@@ -26,12 +27,15 @@ class TransactionActor extends Actor with Timeouts{
       val success = account.fundsAvailable(amountNumber);
     	if(success){
         sender ! PostSuccess()
+        self ! PostSuccessFinish(account, amountNumber)
       }else{
         sender ! PostError("insufficient funds")
       }
-      if(success) Account.updateBalance(account,amountNumber) 
-      models.Transaction.create(account, amountNumber, success)
-   	  (emailActor ! Send(account.email, "Transaction", views.html.email()))
+    }
+    case PostSuccessFinish(account, amountNumber) => {
+      Account.updateBalance(account,amountNumber) 
+      models.Transaction.create(account, amountNumber, true)
+      (emailActor ! Send(account.email, "Transaction", views.html.email()))
     }
   }
 }

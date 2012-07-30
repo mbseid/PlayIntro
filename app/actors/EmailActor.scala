@@ -5,7 +5,6 @@ import akka.util.Timeout
 import akka.util.Duration
 import akka.util.duration._
 import controllers.Timeouts
-
 import utils._
 
 case class Send(to:String, subject:String, message:play.api.templates.Html)

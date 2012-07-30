@@ -16,6 +16,10 @@ import scala.concurrent.stm._
 import java.util.concurrent.TimeUnit
 import java.math.BigDecimal
 import scala.util.control.Exception._
+
+import play.api.libs.ws.WS
+
+
 import utils._
 
 import actors._

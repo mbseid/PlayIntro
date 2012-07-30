@@ -1,5 +1,6 @@
 package models
 
+import play.api._
 import play.api.db._
 import play.api.Play.current
 
@@ -10,7 +11,7 @@ import java.math.{BigDecimal}
 
 case class Account(id:String, balance:BigDecimal, email:String){
 	def fundsAvailable(amount:BigDecimal):Boolean = {
-		if(balance.doubleValue() > amount.doubleValue()) true else false
+		if(balance.doubleValue() >= amount.doubleValue()) true else false
 	}
 }
 
@@ -32,7 +33,7 @@ object Account {
   	def create( account: Account): Account  = {
   		DB.withTransaction { implicit conn =>
   		    SQL("""
-  		    	INSERT INTO account values( {id}, {balance}, {email} )
+  		    	INSERT INTO account values ( {id}, {balance}, {email} )
   		    	""").on(
   		    		'id -> account.id,
   		    		'balance -> account.balance,
@@ -44,12 +45,19 @@ object Account {
   	}
 
     def updateBalance(account:Account, amount:BigDecimal) = {
-      val newBalance = account.balance.doubleValue() - amount.doubleValue()
       DB.withTransaction { implicit conn =>
-          SQL("""
-              UPDATE account SET balance = { balance } WHERE id = {id}
+          val acc:Account = SQL("""
+              SELECT * FROM account
+              WHERE id = {id}
             """).on(
-              'balance -> newBalance,
+              'id -> account.id
+            ).as(Account.simple.singleOpt).get
+            val newBalace = new java.math.BigDecimal(acc.balance.doubleValue() - amount.doubleValue())
+            Logger.info("account id" + acc.id + " : " + newBalace)
+          SQL("""
+              UPDATE account SET balance = {balance} WHERE id = {id}
+            """).on(
+              'balance -> newBalace,
               'id -> account.id
             ).executeUpdate()
       }
@@ -64,9 +72,5 @@ object Account {
   		    		'id -> id
   		    	).as(Account.simple.singleOpt)
   		}	
-  	}
-
-  	def postTransaction(account:Account, amount:Double) = {
-
   	}
 }
