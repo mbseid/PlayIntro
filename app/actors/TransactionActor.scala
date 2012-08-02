@@ -12,10 +12,13 @@ import play.api.Play.current
 import java.math.BigDecimal
 import models._
 
-case class Post(accountNumber:String, amountNumber:BigDecimal)
-case class PostSuccess()
-case class PostSuccessFinish(acount:Account, amountNumber:BigDecimal)
-case class PostError( cause: String )
+sealed trait TransactionRequest
+case class Post(accountNumber:String, amountNumber:BigDecimal) extends TransactionRequest
+
+sealed trait TransactionReply
+case class PostSuccess() extends TransactionReply
+case class PostSuccessFinish(acount:Account, amountNumber:BigDecimal) extends TransactionReply
+case class PostError( cause: String ) extends TransactionReply
 
 class TransactionActor extends Actor with Timeouts{
 

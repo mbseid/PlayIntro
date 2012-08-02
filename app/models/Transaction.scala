@@ -12,11 +12,11 @@ case class Transaction(id:Pk[Long], account:String, amount:BigDecimal, dateDone:
 object Transaction {
 	val simple = {
 	    get[Pk[Long]]("transaction.id") ~
-      get[String]("transaction.acount")~
+      get[String]("transaction.account")~
 	    get[BigDecimal]("transaction.amount")~
       get[Date]("transaction.dateDone")~
       get[Boolean]("transaction.success") map {
-	      case id~acount~amount~dateDone~success => Transaction(id, acount, amount, dateDone, success)
+	      case id~account~amount~dateDone~success => Transaction(id, account, amount, dateDone, success)
 	    }
   	}
 
@@ -41,4 +41,14 @@ object Transaction {
        ).executeUpdate()
   		}	
   	}
+
+    def getAllAccount( accountId:String ):List[Transaction] ={
+      DB.withTransaction { implicit conn =>
+          SQL("""
+            SELECT * FROM transaction WHERE account = {accountId}
+            """).on(
+              'accountId -> accountId
+            ).as(Transaction.simple.*)
+      }
+    }
 }

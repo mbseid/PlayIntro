@@ -9,6 +9,8 @@ POST 	/post/thread 				controllers.Transaction.post
 POST	/post/nonthread				controllers.Transaction.postNonThread
 GET		/dashboard					controllers.Application.dashboard
 GET		/dashboard/stream			controllers.Transaction.dashboardStream
+GET		/report/:accountNumber 		controllers.Transaction.generateReport(accountNumber:String)
+GET		/report/:accountNumber/norouter		controllers.Transaction.generateReportNoRouter(accountNumber:String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

@@ -12,11 +12,13 @@ import play.api.libs.concurrent._
 import play.api.Play.current
 import akka.pattern.ask
 import akka.actor._
+import akka.routing._
 import scala.concurrent.stm._
 import java.util.concurrent.TimeUnit
 import java.math.BigDecimal
 import scala.util.control.Exception._
-
+import play.api.cache.Cache
+import play.api.cache._
 import play.api.libs.ws.WS
 
 
@@ -39,11 +41,24 @@ import play.api.libs.json._
 
 object Transaction extends Controller with Timeouts{
 
+
 	  val transactionActor = Akka.system.actorOf(Props[TransactionActor])
-  	val postForm = Form(
+
+    val resizer = DefaultResizer(lowerBound = 2, upperBound = 15)
+    val reportRouter = Akka.system.actorOf(Props[ReportActor].withRouter(SmallestMailboxRouter(resizer = Some(resizer))))
+  	
+    val reportActor = Akka.system.actorOf(Props[ReportActor])
+    
+    val postForm = Form(
       tuple(
           "accountNumber" -> nonEmptyText,
           "amount" -> nonEmptyText
+          )
+      )
+
+    val reportForm = Form(
+      single(
+          "accountNumber" -> nonEmptyText
           )
       )
   
@@ -81,6 +96,39 @@ object Transaction extends Controller with Timeouts{
               }
           }
         )
+    }
+    def generateReport(accountNumber:String) = Action { implicit request =>
+      val account = Cache.getOrElse[Account]("account."+accountNumber) {
+                      Account.find(accountNumber).get
+                    }
+      val transactions = Cache.getOrElse[List[Transaction]]("transactions."+accountNumber) {
+                       models.Transaction.getAllAccount(accountNumber)
+                    }
+
+     
+      Async{
+        (reportRouter ? GenerateReport(account, transactions)).asPromise.map {
+            case Report(html) => Ok(views.html.report(html))
+            case _ => BadRequest
+        }
+      }
+    }
+
+    def generateReportNoRouter(accountNumber:String) = Action { implicit request =>
+      val account = Cache.getOrElse[Account]("account."+accountNumber) {
+                      Account.find(accountNumber).get
+                    }
+      val transactions = Cache.getOrElse[List[Transaction]]("transactions."+accountNumber) {
+                       models.Transaction.getAllAccount(accountNumber)
+                    }
+
+     
+      Async{
+        (reportActor ? GenerateReport(account, transactions)).asPromise.map {
+            case Report(html) => Ok(views.html.report(html))
+            case _ => BadRequest
+        }
+      }
     }
     def dashboardStream = Action{
       Ok.stream( Streams.getHeap &> Comet(callback = "window.dashboard.message"))

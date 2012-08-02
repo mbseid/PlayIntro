@@ -18,4 +18,8 @@ class EmailActor extends Actor with Timeouts{
        MailUtility.sendEmail(to, subject, message)
       
   }
+
+  override def postStop = {
+        
+  }
 }
