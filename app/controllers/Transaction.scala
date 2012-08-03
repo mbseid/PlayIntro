@@ -131,7 +131,7 @@ object Transaction extends Controller with Timeouts{
       }
     }
     def dashboardStream = Action{
-      Ok.stream( Streams.getTransactionAmount &> Comet(callback = "parent.dashboard.message"))
+      Ok.stream( Streams.getTransactionAmount >- Streams.getBalanceUpdate >- Streams.transactionTotal &> Comet(callback = "parent.dashboard.message"))
     }
 }
 
@@ -141,6 +141,19 @@ object Streams{
         Some("transactions:"+models.Transaction.getLastSecondTransactions(new java.util.Date()).foldLeft(""){ (s:String, t:Transaction) =>
           s + "account-"+t.account+",amount-"+t.amount+";"
           } + "#"),
+        1000, TimeUnit.MILLISECONDS)
+  }
+
+  val getBalanceUpdate = Enumerator.fromCallback { () =>
+       Promise.timeout(
+        Some("accounts:"+models.Account.findAll().foldLeft(""){ (s:String, a:Account) =>
+          s +a.id+","+a.balance+";"
+          } + "#"),
+        1000, TimeUnit.MILLISECONDS)
+  }
+  val transactionTotal = Enumerator.fromCallback { () =>
+      Promise.timeout(
+        Some("transactionTotal:"+models.Transaction.count()),
         1000, TimeUnit.MILLISECONDS)
   }
 }

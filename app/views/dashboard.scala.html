@@ -10,7 +10,7 @@
 				<p class="list-col report">Report</p>
 			</div>
 			@accounts.map { account =>
-				<div class="list-row account" data-accountId="@account.id">
+				<div class="list-row account" id="@account.id">
 					<p class="list-col number">@account.id</p>
 					<p class="list-col balance">@account.balance</p>
 					<p class="list-col email">@account.email</p>

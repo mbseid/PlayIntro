@@ -64,4 +64,12 @@ object Transaction {
             ).as(Transaction.simple.*)
       }
     }
+
+    def count():Long = {
+      DB.withTransaction { implicit conn =>
+          val firstRow = SQL("Select count(*) as c from transaction").apply().head
+          val transactionCount = firstRow[Long]("c")
+          transactionCount
+      } 
+    }
 }
