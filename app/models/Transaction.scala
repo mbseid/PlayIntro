@@ -51,4 +51,17 @@ object Transaction {
             ).as(Transaction.simple.*)
       }
     }
+
+    def getLastSecondTransactions(date:Date):List[Transaction] = {
+      val time = date.getTime()
+      val secondAgo = time - 1000
+      val secondAgoDate = new Date(secondAgo)
+      DB.withTransaction { implicit conn =>
+          SQL("""
+            SELECT * FROM transaction WHERE dateDone > {date}
+            """).on(
+              'date -> secondAgoDate
+            ).as(Transaction.simple.*)
+      }
+    }
 }

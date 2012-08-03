@@ -19,6 +19,16 @@ object Application extends Controller {
   	val accounts = Account.findAll()
   	Ok(views.html.dashboard(accounts))
   }
+
+  def javascriptRoutes = Action { implicit request =>
+    
+    import routes.javascript._
+    Ok(
+      Routes.javascriptRouter("jsRoutes")(
+        Transaction.post, Transaction.postNonThread
+      )
+    ).as("text/javascript") 
+  }
 }
 
 trait Timeouts {

@@ -131,22 +131,16 @@ object Transaction extends Controller with Timeouts{
       }
     }
     def dashboardStream = Action{
-      Ok.stream( Streams.getHeap &> Comet(callback = "window.dashboard.message"))
+      Ok.stream( Streams.getTransactionAmount &> Comet(callback = "parent.dashboard.message"))
     }
 }
 
 object Streams{
-  val cpu = new models.CPU()
-
-  val getHeap = Enumerator.fromCallback{ () =>
-    Promise.timeout(
-      Some((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / (1024*1024) + ":memory"),
-      100, TimeUnit.MILLISECONDS)
-  }
-
-  val getCPU = Enumerator.fromCallback{ () =>
-    Promise.timeout(
-      Some((cpu.getCpuUsage()*1000).round / 10.0 + ":cpu"),
-      100, TimeUnit.MILLISECONDS)
+  val getTransactionAmount = Enumerator.fromCallback { () =>
+      Promise.timeout(
+        Some("transactions:"+models.Transaction.getLastSecondTransactions(new java.util.Date()).foldLeft(""){ (s:String, t:Transaction) =>
+          s + "account-"+t.account+",amount-"+t.amount+";"
+          } + "#"),
+        1000, TimeUnit.MILLISECONDS)
   }
 }
