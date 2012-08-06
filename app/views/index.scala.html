@@ -131,7 +131,7 @@ scala> bar = "New Value"
         </body>
     </section>
     <section id="play-framework" class="slide">
-		<h1>Enter Play Framework</h1>
+		<h1>Enter Play! Framework</h1>
     </section>
     <section id="play-highlights" class="slide">
 		<div class="header">
@@ -159,31 +159,30 @@ scala> bar = "New Value"
 # ~~~~
 
 # Home page
-GET     /                           controllers.PostController.list
-GET     /post/:id                   controllers.PostController.readPost(id:Long)
-POST    /post                       controllers.PostController.post
-DELETE  /post/:id                   controllers.PostController.delete(id:Long)
-...
-GET     /admin/dashboard/post/create        controllers.PostController.create
-GET     /admin/dashboard/post/:id/edit      controllers.PostController.edit(id:Long)
-GET     /admin/dashboard/post/list          controllers.PostController.listAdmin
-GET     /admin/dashboard/user/approve       controllers.UserController.toApprove
+GET     /                           controllers.Application.index
+
+POST    /post/thread                controllers.Transaction.post
+POST    /post/nonthread             controllers.Transaction.postNonThread
+GET     /dashboard                  controllers.Application.dashboard
+GET     /dashboard/stream           controllers.Transaction.dashboardStream
+GET     /report/:accountNumber      controllers.Transaction.generateReport(accountNumber:String)
+GET     /report/:accountNumber/norouter     controllers.Transaction.generateReportNoRouter(accountNumber:String)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/javascripts/routes  controllers.Application.javascriptRoutes
+GET     /_routes                    controllers.Application.javascriptRoutes
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 """}
                 </pre>
             </div>
         </div>
     </section>
-        <section id="controllers"class="slide">
+    <section id="controllers"class="slide">
         <div class="body">
             <div class="code-group">
                 <p>Controllers</p>
                 <pre class="brush: scala">
 @{"""
-object PostController extends Controller with Secured with Implicits with EBeanConversions {
+object PostController extends Controller with Secured with Implicits{
   
   val postSupervisor = Akka.system.actorOf(Props[PostSupervisor])
     ...
@@ -237,9 +236,45 @@ object PostController extends Controller with Secured with Implicits with EBeanC
             </div>
         </div>
     </section>
+        <section id="models"class="slide">
+        <div class="header">
+            <p class="title">Models</p>
+        </div>
+        <div class="body">
+            <div class="code-group">
+                <pre class="brush: scala">
+@{"""
+case class Account(id:String, balance:BigDecimal, email:String){
+    def fundsAvailable(amount:BigDecimal):Boolean = {
+        if(balance.doubleValue() >= amount.doubleValue()) true else false
+    }
+}
+
+object Account {
+    val simple = {
+        get[String]("id") ~
+        get[BigDecimal]("balance") ~
+        get[String]("email") map {
+          case id~balance~email => Account(id, balance, email)
+        }
+    }
+    def findAll():Seq[Account] = {
+        DB.withTransaction { implicit conn =>
+            SQL(" " "
+                SELECT * FROM account
+                " " ")as(Account.simple.*)
+        }
+    }
+    ...
+}
+"""}
+                </pre>
+            </div>
+        </div>
+    </section>
     <section id="views" class="slide">
         <h1>We are going to skip views
-
+        <br>
         They are pretty easy to learn, we are all smart people
         </h1>
     </section>
@@ -288,10 +323,10 @@ abstract class CrudActor[T <: AbstractModel] extends AbstractActor with EBeanCon
     case Get( id ) =>
       val item = modelDAO.get( id )
       sender ! item
-    // Unknown Message Handling
     case Delete ( id ) =>
       modelDAO.delete( id )
       sender ! id
+    // Unknown Message Handling
     case _ =>
       sender ! ActorError("Unknown Request")
 
@@ -323,8 +358,8 @@ class PostActor extends CrudActor[Post] {
         </div>
     </section>
     <section id="explore" class="slide">
-        <h1>Lets explore the our Demo</h1>
-        <a href="#"><img src="@routes.Assets.at("images/baracktocat.jpeg")" height="50%" width="50%"></a>
+        <h1>Lets explore the Demo</h1>
+        <a href="https://github.com/mbseid/PlayIntro"><img src="@routes.Assets.at("images/baracktocat.jpeg")" height="50%" width="50%"></a>
     </section>
     <section id="scaling" class="slide">
 		<div class="header">
@@ -346,10 +381,22 @@ class PostActor extends CrudActor[Post] {
     <section id="questions" class="slide">
         <h1>Questions???<h1>
     </section>
+    <section id="resources" class="slide">
+        <div class="contact-group">
+        <p>Check out some of the resources that really helped me:</p>
+        <ul>
+            <li><a href="http://twitter.github.com/scala_school/index.html">Scala School by Twitter</a></li>
+            <li><a href="https://github.com/playframework/Play20/wiki">Play! 2 Wiki</a></li>
+            <li><a href="https://github.com/playframework/Play20/tree/master/samples/scala">Play! 2 Scamples</a></li>
+            <li><a href="http://akka.io/">Akka</a></li>
+        </ul>
+        </div>
+    </section>
      <section id="contact" class="slide">
         <div class="contact-group">
         <p>Find me at any of the following</p>
         <ul>
+            <li><a href="http://mbseid.com">mbseid.com</a></li>
             <li><a href="mailto:mbseid@@gmail.com">mbseid@@gmail.com</a></li>
             <li><a href="https://twitter.com/mbseid/">@@mbseid</a></li>
             <li><a href="https://github.com/mbseid">mbseid on github</a></li>

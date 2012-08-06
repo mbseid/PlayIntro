@@ -18,7 +18,7 @@
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">30</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">20</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">5</stringProp>
         <longProp name="ThreadGroup.start_time">1343142880000</longProp>
         <longProp name="ThreadGroup.end_time">1343142880000</longProp>
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
@@ -86,7 +86,7 @@
           <stringProp name="HTTPSampler.response_timeout">5000</stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
           <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-          <stringProp name="HTTPSampler.path">/post/thread</stringProp>
+          <stringProp name="HTTPSampler.path">/post/nonthread</stringProp>
           <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
           <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
